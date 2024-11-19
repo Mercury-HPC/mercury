@@ -249,6 +249,9 @@ typedef void (*na_cb_t)(const struct na_cb_info *callback_info);
 #define NA_MEM_WRITE_ONLY 0x02
 #define NA_MEM_READWRITE  0x03
 
+/* RMA optional flags */
+#define NA_RMA_NO_CONNECT (1 << 0)
+
 /* Progress modes */
 #define NA_NO_BLOCK 0x01 /*!< no blocking progress */
 #define NA_NO_RETRY 0x02 /*!< no retry of operations in progress */

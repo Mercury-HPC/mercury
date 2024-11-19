@@ -835,6 +835,39 @@ NA_Put(na_class_t *na_class, na_context_t *context, na_cb_t callback, void *arg,
     na_op_id_t *op_id);
 
 /**
+ * Put data to remote address.
+ * Initiate a put to the registered memory regions with the given offset/size.
+ * After completion, the user callback is placed into a completion queue and
+ * can be triggered using NA_Trigger().
+ * \remark Memory must be registered and handles exchanged between peers.
+ *
+ * Users must manually create an operation ID through NA_Op_create() and pass
+ * it through op_id for future use and prevent multiple ID creation.
+ *
+ * \param na_class [IN/OUT]      pointer to NA class
+ * \param context [IN/OUT]       pointer to context of execution
+ * \param callback [IN]          pointer to function callback
+ * \param arg [IN]               pointer to data passed to callback
+ * \param local_mem_handle [IN]  NA local memory handle
+ * \param local_offset [IN]      local offset
+ * \param remote_mem_handle [IN] NA remote memory handle
+ * \param remote_offset [IN]     remote offset
+ * \param data_size [IN]         size of data that needs to be transferred
+ * \param remote_addr [IN]       NA address of remote destination
+ * \param remote_id [IN]         target ID of remote destination
+ * \param flags [IN]             optional flags
+ * \param op_id [IN/OUT]         pointer to operation ID
+ *
+ * \return NA_SUCCESS or corresponding NA error code
+ */
+static NA_INLINE na_return_t
+NA_Put2(na_class_t *na_class, na_context_t *context, na_cb_t callback,
+    void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
+    na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
+    size_t data_size, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
+    na_op_id_t *op_id);
+
+/**
  * Get data from remote address.
  * Initiate a get to the registered memory regions with the given offset/size.
  * After completion, the user callback is placed into a completion queue and
@@ -863,6 +896,38 @@ NA_Get(na_class_t *na_class, na_context_t *context, na_cb_t callback, void *arg,
     na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
     size_t data_size, na_addr_t *remote_addr, uint8_t remote_id,
+    na_op_id_t *op_id);
+
+/**
+ * Get data from remote address.
+ * Initiate a get to the registered memory regions with the given offset/size.
+ * After completion, the user callback is placed into a completion queue and
+ * can be triggered using NA_Trigger().
+ *
+ * Users must manually create an operation ID through NA_Op_create() and pass
+ * it through op_id for future use and prevent multiple ID creation.
+ *
+ * \param na_class [IN/OUT]      pointer to NA class
+ * \param context [IN/OUT]       pointer to context of execution
+ * \param callback [IN]          pointer to function callback
+ * \param arg [IN]               pointer to data passed to callback
+ * \param local_mem_handle [IN]  NA local memory handle
+ * \param local_offset [IN]      local offset
+ * \param remote_mem_handle [IN] NA remote memory handle
+ * \param remote_offset [IN]     remote offset
+ * \param data_size [IN]         size of data that needs to be transferred
+ * \param remote_addr [IN]       NA address of remote source
+ * \param remote_id [IN]         target ID of remote source
+ * \param flags [IN]             optional flags
+ * \param op_id [IN/OUT]         pointer to operation ID
+ *
+ * \return NA_SUCCESS or corresponding NA error code
+ */
+static NA_INLINE na_return_t
+NA_Get2(na_class_t *na_class, na_context_t *context, na_cb_t callback,
+    void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
+    na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
+    size_t data_size, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
     na_op_id_t *op_id);
 
 /**
@@ -1090,12 +1155,12 @@ struct na_class_ops {
         na_cb_t callback, void *arg, na_mem_handle_t *local_mem_handle,
         na_offset_t local_offset, na_mem_handle_t *remote_mem_handle,
         na_offset_t remote_offset, size_t length, na_addr_t *remote_addr,
-        uint8_t remote_id, na_op_id_t *op_id);
+        uint8_t remote_id, uint8_t flags, na_op_id_t *op_id);
     na_return_t (*get)(na_class_t *na_class, na_context_t *context,
         na_cb_t callback, void *arg, na_mem_handle_t *local_mem_handle,
         na_offset_t local_offset, na_mem_handle_t *remote_mem_handle,
         na_offset_t remote_offset, size_t length, na_addr_t *remote_addr,
-        uint8_t remote_id, na_op_id_t *op_id);
+        uint8_t remote_id, uint8_t flags, na_op_id_t *op_id);
     int (*poll_get_fd)(na_class_t *na_class, na_context_t *context);
     bool (*poll_try_wait)(na_class_t *na_class, na_context_t *context);
     na_return_t (*poll)(
@@ -1280,7 +1345,20 @@ NA_Put(na_class_t *na_class, na_context_t *context, na_cb_t callback, void *arg,
 {
     return na_class->ops->put(na_class, context, callback, arg,
         local_mem_handle, local_offset, remote_mem_handle, remote_offset,
-        data_size, remote_addr, remote_id, op_id);
+        data_size, remote_addr, remote_id, 0, op_id);
+}
+
+/*---------------------------------------------------------------------------*/
+static NA_INLINE na_return_t
+NA_Put2(na_class_t *na_class, na_context_t *context, na_cb_t callback,
+    void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
+    na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
+    size_t data_size, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
+    na_op_id_t *op_id)
+{
+    return na_class->ops->put(na_class, context, callback, arg,
+        local_mem_handle, local_offset, remote_mem_handle, remote_offset,
+        data_size, remote_addr, remote_id, flags, op_id);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1293,7 +1371,20 @@ NA_Get(na_class_t *na_class, na_context_t *context, na_cb_t callback, void *arg,
 {
     return na_class->ops->get(na_class, context, callback, arg,
         local_mem_handle, local_offset, remote_mem_handle, remote_offset,
-        data_size, remote_addr, remote_id, op_id);
+        data_size, remote_addr, remote_id, 0, op_id);
+}
+
+/*---------------------------------------------------------------------------*/
+static NA_INLINE na_return_t
+NA_Get2(na_class_t *na_class, na_context_t *context, na_cb_t callback,
+    void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
+    na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
+    size_t data_size, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
+    na_op_id_t *op_id)
+{
+    return na_class->ops->get(na_class, context, callback, arg,
+        local_mem_handle, local_offset, remote_mem_handle, remote_offset,
+        data_size, remote_addr, remote_id, flags, op_id);
 }
 
 /*---------------------------------------------------------------------------*/

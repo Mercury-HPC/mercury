@@ -1921,7 +1921,7 @@ static na_return_t
 na_ofi_put(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
-    size_t length, na_addr_t *remote_addr, uint8_t remote_id,
+    size_t length, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
     na_op_id_t *op_id);
 
 /* get */
@@ -1929,7 +1929,7 @@ static na_return_t
 na_ofi_get(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
-    size_t length, na_addr_t *remote_addr, uint8_t remote_id,
+    size_t length, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
     na_op_id_t *op_id);
 
 /* poll_get_fd */
@@ -9009,11 +9009,16 @@ static na_return_t
 na_ofi_put(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
-    size_t length, na_addr_t *remote_addr, uint8_t remote_id, na_op_id_t *op_id)
+    size_t length, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
+    na_op_id_t *op_id)
 {
+    uint64_t fi_rma_flags = FI_COMPLETION | FI_DELIVERY_COMPLETE;
+    if ((flags & NA_RMA_NO_CONNECT) &&
+        (NA_OFI_CLASS(na_class)->fabric->prov_type == NA_OFI_PROV_TCP))
+        fi_rma_flags |= FI_TCP_NO_CONNECT;
+
     return na_ofi_rma_common(NA_OFI_CLASS(na_class), context, NA_CB_PUT,
-        callback, arg, fi_writemsg, "fi_writemsg",
-        FI_COMPLETION | FI_DELIVERY_COMPLETE,
+        callback, arg, fi_writemsg, "fi_writemsg", fi_rma_flags,
         (struct na_ofi_mem_handle *) local_mem_handle, local_offset,
         (struct na_ofi_mem_handle *) remote_mem_handle, remote_offset, length,
         (struct na_ofi_addr *) remote_addr, remote_id,
@@ -9025,10 +9030,16 @@ static na_return_t
 na_ofi_get(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
-    size_t length, na_addr_t *remote_addr, uint8_t remote_id, na_op_id_t *op_id)
+    size_t length, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
+    na_op_id_t *op_id)
 {
+    uint64_t fi_rma_flags = FI_COMPLETION;
+    if ((flags & NA_RMA_NO_CONNECT) &&
+        (NA_OFI_CLASS(na_class)->fabric->prov_type == NA_OFI_PROV_TCP))
+        fi_rma_flags |= FI_TCP_NO_CONNECT;
+
     return na_ofi_rma_common(NA_OFI_CLASS(na_class), context, NA_CB_GET,
-        callback, arg, fi_readmsg, "fi_readmsg", FI_COMPLETION,
+        callback, arg, fi_readmsg, "fi_readmsg", fi_rma_flags,
         (struct na_ofi_mem_handle *) local_mem_handle, local_offset,
         (struct na_ofi_mem_handle *) remote_mem_handle, remote_offset, length,
         (struct na_ofi_addr *) remote_addr, remote_id,

@@ -422,7 +422,7 @@ static na_return_t
 na_bmi_put(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
-    size_t length, na_addr_t *remote_addr, uint8_t remote_id,
+    size_t length, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
     na_op_id_t *op_id);
 
 /* get */
@@ -430,7 +430,7 @@ static na_return_t
 na_bmi_get(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
-    size_t length, na_addr_t *remote_addr, uint8_t remote_id,
+    size_t length, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
     na_op_id_t *op_id);
 
 /* poll */
@@ -2061,7 +2061,7 @@ na_bmi_put(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
     size_t length, na_addr_t *remote_addr, uint8_t NA_UNUSED remote_id,
-    na_op_id_t *op_id)
+    uint8_t NA_UNUSED flags, na_op_id_t *op_id)
 {
     struct na_bmi_op_id *na_bmi_op_id = (struct na_bmi_op_id *) op_id;
     struct na_bmi_mem_handle *na_bmi_mem_handle_local =
@@ -2193,7 +2193,7 @@ na_bmi_get(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
     size_t length, na_addr_t *remote_addr, uint8_t NA_UNUSED remote_id,
-    na_op_id_t *op_id)
+    uint8_t NA_UNUSED flags, na_op_id_t *op_id)
 {
     struct na_bmi_op_id *na_bmi_op_id = (struct na_bmi_op_id *) op_id;
     struct na_bmi_mem_handle *na_bmi_mem_handle_local =

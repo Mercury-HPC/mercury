@@ -50,8 +50,10 @@ struct hg_bulk_attr {
  * Bulk transfer operators.
  */
 typedef enum hg_bulk_op {
-    HG_BULK_PUSH, /*!< push data to origin */
-    HG_BULK_PULL  /*!< pull data from origin */
+    HG_BULK_PUSH,      /*!< push data to origin */
+    HG_BULK_PULL,      /*!< pull data from origin */
+    HG_BULK_NO_CONNECT /*!< for transports emulating RMA, do not attempt to
+                          connect */
 } hg_bulk_op_t;
 
 /* Callback info structs */

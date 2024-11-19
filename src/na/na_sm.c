@@ -1048,7 +1048,7 @@ static NA_INLINE na_return_t
 na_sm_put(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
-    size_t length, na_addr_t *remote_addr, uint8_t remote_id,
+    size_t length, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
     na_op_id_t *op_id);
 
 /* get */
@@ -1056,7 +1056,7 @@ static NA_INLINE na_return_t
 na_sm_get(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
-    size_t length, na_addr_t *remote_addr, uint8_t remote_id,
+    size_t length, na_addr_t *remote_addr, uint8_t remote_id, uint8_t flags,
     na_op_id_t *op_id);
 
 /* poll_get_fd */
@@ -5012,7 +5012,7 @@ na_sm_put(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
     size_t length, na_addr_t *remote_addr, uint8_t NA_UNUSED remote_id,
-    na_op_id_t *op_id)
+    uint8_t NA_UNUSED flags, na_op_id_t *op_id)
 {
     return na_sm_rma(NA_SM_CLASS(na_class), context, NA_CB_PUT, callback, arg,
         na_sm_process_vm_writev, (struct na_sm_mem_handle *) local_mem_handle,
@@ -5027,7 +5027,7 @@ na_sm_get(na_class_t *na_class, na_context_t *context, na_cb_t callback,
     void *arg, na_mem_handle_t *local_mem_handle, na_offset_t local_offset,
     na_mem_handle_t *remote_mem_handle, na_offset_t remote_offset,
     size_t length, na_addr_t *remote_addr, uint8_t NA_UNUSED remote_id,
-    na_op_id_t *op_id)
+    uint8_t NA_UNUSED flags, na_op_id_t *op_id)
 {
     return na_sm_rma(NA_SM_CLASS(na_class), context, NA_CB_GET, callback, arg,
         na_sm_process_vm_readv, (struct na_sm_mem_handle *) local_mem_handle,
