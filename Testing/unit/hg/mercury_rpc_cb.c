@@ -188,13 +188,11 @@ HG_TEST_RPC_CB(hg_test_rpc_open, handle)
     hg_size_t payload_size = HG_Get_input_payload_size(handle);
 #ifdef HG_HAS_XDR
     size_t expected_string_payload_size =     /* note xdr rounding rules */
-        sizeof(uint64_t) +                    /* length */
-        RNDUP(strlen(HG_TEST_RPC_PATH) + 1) + /* string data, inc \0 at end */
-        RNDUP(sizeof(uint8_t)) +              /* is_const */
-        RNDUP(sizeof(uint8_t));               /* is_owned */
+        sizeof(uint32_t) +                    /* length */
+        RNDUP(strlen(HG_TEST_RPC_PATH));      /* string data (no \0) */
 #else
     size_t expected_string_payload_size =
-        strlen(HG_TEST_RPC_PATH) + sizeof(uint64_t) + 3;
+        sizeof(uint32_t) + strlen(HG_TEST_RPC_PATH);  /* len + data */
 #endif
 
     HG_TEST_CHECK_ERROR(

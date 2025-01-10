@@ -135,8 +135,9 @@ set(MERCURY_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/mercury_header.c
   ${CMAKE_CURRENT_SOURCE_DIR}/mercury_proc.c
   ${CMAKE_CURRENT_SOURCE_DIR}/mercury_proc_bulk.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/proc_extra/mercury_proc_string.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/proc_extra/mercury_string_object.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/proc_extra/mercury_proc_rpcgen.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/proc_extra/mercury_proc_rpcgen_array.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/proc_extra/mercury_proc_rpcgen_ref.c
 )
 
 #------------------------------------------------------------------------------
@@ -154,8 +155,7 @@ set(MERCURY_PUBLIC_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/mercury_proc_bulk.h
   ${CMAKE_CURRENT_SOURCE_DIR}/mercury_proc.h
   ${CMAKE_CURRENT_SOURCE_DIR}/mercury_types.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/proc_extra/mercury_proc_string.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/proc_extra/mercury_string_object.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/proc_extra/mercury_proc_extra.h
 )
 
 #------------------------------------------------------------------------------
