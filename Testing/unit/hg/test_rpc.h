@@ -9,7 +9,7 @@
 #define TEST_RPC_H
 
 #include "mercury_macros.h"
-#include "mercury_proc_string.h"
+#include "mercury_proc_extra.h"
 
 #include <stdio.h>
 #include <stdlib.h>
