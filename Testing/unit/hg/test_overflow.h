@@ -9,7 +9,7 @@
 #define TEST_OVERFLOW_H
 
 #include "mercury_macros.h"
-#include "mercury_proc_string.h"
+#include "mercury_proc_extra.h"
 
 #ifdef HG_HAS_BOOST
 
