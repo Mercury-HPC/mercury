@@ -209,7 +209,7 @@ static hg_return_t
 hg_test_proc_string(void)
 {
     hg_return_t ret;
-    hg_test_proc_string_t in = {"Hello"}, out = {"NULL"};
+    hg_test_proc_string_t in = {"Hello"}, out = {NULL};
 
     ret = hg_test_proc_generic(hg_proc_hg_test_proc_string_t, &in, &out);
     HG_TEST_CHECK_HG_ERROR(done, ret, "hg_test_proc_generic() failed");

@@ -178,13 +178,11 @@ hg_test_rpc_input(hg_handle_t handle, hg_addr_t addr, hg_id_t rpc_id,
     hg_size_t payload_size;
 #ifdef HG_HAS_XDR
     size_t expected_string_payload_size =     /* note xdr rounding rules */
-        sizeof(uint64_t) +                    /* length */
-        RNDUP(strlen(HG_TEST_RPC_PATH) + 1) + /* string data, inc \0 at end */
-        RNDUP(sizeof(uint8_t)) +              /* is_const */
-        RNDUP(sizeof(uint8_t));               /* is_owned */
+        sizeof(uint32_t) +                    /* length */
+        RNDUP(strlen(HG_TEST_RPC_PATH));      /* string data, no \0 */
 #else
     size_t expected_string_payload_size =
-        strlen(HG_TEST_RPC_PATH) + sizeof(uint64_t) + 3;
+        sizeof(uint32_t) + strlen(HG_TEST_RPC_PATH);
 #endif
     unsigned int flag;
     int rc;
@@ -349,9 +347,11 @@ hg_test_rpc_output_overflow_cb(const struct hg_cb_info *callback_info)
 #    endif
     hg_return_t ret = callback_info->ret;
     hg_size_t payload_size = HG_Get_output_payload_size(handle);
-    size_t expected_string_payload_size =
-        HG_Class_get_output_eager_size(HG_Get_info(handle)->hg_class) * 2 + 3 +
-        2 * sizeof(uint64_t);
+    /* payload is an encoded overflow_out_t */
+    /* to support xdr: RNDUP() the string length (eager output size * 2) */
+    size_t expected_string_payload_size = sizeof(uint32_t) +  /* length */
+        HG_Class_get_output_eager_size(HG_Get_info(handle)->hg_class) * 2 +
+        sizeof(uint64_t);  /* overflow_out_t.string_len */
 
     HG_TEST_CHECK_HG_ERROR(done, ret, "Error in HG callback (%s)",
         HG_Error_to_string(callback_info->ret));

@@ -27,14 +27,28 @@ endif()
 function(build_mercury_test test_name)
   if(${CMAKE_VERSION} VERSION_GREATER 3.12)
     add_executable(hg_test_${test_name} test_${test_name}.c)
-    target_link_libraries(hg_test_${test_name} mercury_unit)
+    target_link_libraries(hg_test_${test_name} mercury_unit ${ARGN})
   else()
     add_executable(hg_test_${test_name} test_${test_name}.c mercury_unit.c mercury_rpc_cb.c)
-    target_link_libraries(hg_test_${test_name} mercury_test_common)
+    target_link_libraries(hg_test_${test_name} mercury_test_common ${ARGN})
   endif()
   if(MERCURY_ENABLE_COVERAGE)
     set_coverage_flags(hg_test_${test_name})
   endif()
+endfunction()
+
+# add ${test_xname} lib target using hg_rpcgen on file ${test_xname}.x
+function(build_mercury_rpcgen_procs test_xname)
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${test_xname}.h
+           ${CMAKE_CURRENT_BINARY_DIR}/${test_xname}_proc.c
+    COMMAND ${CMAKE_BINARY_DIR}/bin/hg_rpcgen
+                  ${CMAKE_CURRENT_SOURCE_DIR}/${test_xname}.x
+    DEPENDS ${test_xname}.x)
+    add_library(${test_xname} ${test_xname}_proc.c)
+    target_link_libraries(${test_xname} mercury)
+    target_include_directories(${test_xname}
+      PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 endfunction()
 
 macro(add_mercury_test test_name comm protocol busy parallel self scalable
@@ -222,9 +236,13 @@ build_mercury_test(bulk)
 build_mercury_test(lookup)
 build_mercury_test(proc)
 
+build_mercury_rpcgen_procs(test_hg_rpcgen)
+build_mercury_test(hg_rpcgen test_hg_rpcgen)
+
 build_mercury_test(kill)
 
 add_mercury_test_standalone(proc)
+add_mercury_test_standalone(hg_rpcgen)
 
 add_mercury_test_comm_all(rpc)
 add_mercury_test_comm_all(bulk)
